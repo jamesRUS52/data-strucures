@@ -1,0 +1,21 @@
+{
+  "name": "james.rus52/data_structure",
+  "description": "Data Structure",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "james",
+      "email": "james.rus52@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "MyDataStructure\\" : "src"
+    }
+  },
+  "require": {
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0.0"
+  }
+}
