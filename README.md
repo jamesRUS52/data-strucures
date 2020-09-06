@@ -6,6 +6,7 @@ This is my own simple implementation of basic data structures
 - MyList - List with link to the next data node, implemented with MyListNode 
 - MyStack - Stack implementation with MyList
 - MyQueue - Queue implementation with two instance of MyStake
+- MyGraph - Graph with find fasters route by Dijkstra’s algorithm
 
 How to install
 
