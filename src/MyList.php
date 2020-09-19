@@ -7,6 +7,7 @@ use MyDataStructure\MyListNode;
 class MyList
 {
     private ?MyListNode $head = null;
+    private int $count = 0;
 
     public function push($data) {
         $this->addNode(new MyListNode($data));
@@ -22,6 +23,7 @@ class MyList
         } else {
             $prev_node->setNext($node);
         }
+        $this->count++;
         return $this;
     }
 
@@ -57,11 +59,13 @@ class MyList
     {
         $node = $this->head;
         if ($node === null) {
+            $this->count = 0;
             return;
         }
         if ($node === $last) {
             unset($node);
             $this->head = null;
+            $this->count--;
             return;
         }
         while ($node->getNext() !== null) {
@@ -69,10 +73,18 @@ class MyList
             if ($next === $last) {
                 unset($next);
                 $node->setNext(null);
+                $this->count--;
                 return;
             }
             $node = $next;
         }
+    }
 
+    public function isEmpty() : bool {
+        return $this->getCount() === 0;
+    }
+
+    public function getCount() : int {
+        return $this->count;
     }
 }

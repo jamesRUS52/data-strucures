@@ -28,4 +28,12 @@ class MyStack
     {
         return strval($this->list);
     }
+
+    public function isEmpty() : bool {
+        return $this->getCount() === 0;
+    }
+
+    public function getCount() : int {
+        return $this->list->getCount();
+    }
 }
