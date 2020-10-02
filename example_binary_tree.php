@@ -4,17 +4,17 @@ require 'vendor/autoload.php';
 use MyDataStructure\MyBinaryTree;
 
 $tree = new MyBinaryTree();
+$three = $tree->add(3);
+$nine = $tree->add(9, $three, MyBinaryTree::LEFT);
+$twenty = $tree->add(20, $three, MyBinaryTree::RIGHT);
+$fifteen = $tree->add(15, $twenty, MyBinaryTree::LEFT);
+$seven = $tree->add(7, $twenty, MyBinaryTree::RIGHT);
 
-$tree->add(8);
-$tree->add(3);
-$tree->add(10);
-$tree->add(1);
-$tree->add(6);
-$tree->add(4);
-$tree->add(7);
-$tree->add(14);
-$tree->add(13);
+print $tree.PHP_EOL;
 
-print $tree;
+$preorder = [3, 9, 20, 15, 7];
+$inorder = [9, 3, 15, 20, 7];
 
-print $tree->symmetricOrder();
+
+$tree = MyBinaryTree::restoreTree($preorder, $inorder);
+print $tree.PHP_EOL;

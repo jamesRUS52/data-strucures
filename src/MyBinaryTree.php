@@ -4,66 +4,35 @@
 namespace MyDataStructure;
 
 
-class MyBinaryTree
+class MyBinaryTree extends MyTree
 {
-    private ?MyBinaryTreeNode $root = null;
+    const LEFT = 'left';
+    const RIGHT = 'right';
 
     /**
      * Добавление узла в дерево
      * @param $data
+     * @param MyBinaryTreeNode|null $parent
+     * @param string|null $direction
+     * @return MyBinaryTreeNode
      */
-    public function add($data) {
+    public function add($data, ?MyBinaryTreeNode $parent = null, ?string $direction = self::LEFT) : MyBinaryTreeNode {
         $new_node = new MyBinaryTreeNode($data);
         if ($this->root === null) {
             $this->root = $new_node;
         } else {
-            $this->insert($this->root, $new_node);
+            $this->insert($parent, $new_node, $direction);
         }
+        return $new_node;
     }
 
     /**
      * Поиск места для вставки узла в дерево
-     * @param MyBinaryTreeNode $start_node
+     * @param MyBinaryTreeNode $parent_node
      * @param MyBinaryTreeNode $new_node
+     * @param $direction
      */
-    private function insert(MyBinaryTreeNode $start_node, MyBinaryTreeNode $new_node) {
-        if ($new_node->getData() < $start_node->getData()) {
-            if ($start_node->getLeft() === null) {
-                $start_node->setLeft($new_node);
-            } else {
-                if ($new_node->getData() < $start_node->getLeft()->getData()) {
-                    $this->insert($start_node->getLeft(), $new_node);
-                } else {
-                    if ($start_node->getLeft()->getRight() === null) {
-                        $start_node->getLeft()->setRight($new_node);
-                    } else {
-                        $this->insert($start_node->getLeft()->getRight(), $new_node);
-                    }
-                }
-            }
-        } else {
-            if ($start_node->getRight() === null) {
-                $start_node->setRight($new_node);
-            } else {
-                if ($new_node->getData() >= $start_node->getRight()->getData()) {
-                    $this->insert($start_node->getRight(), $new_node);
-                } else {
-                    if ($start_node->getRight()->getLeft() === null) {
-                        $start_node->getRight()->setLeft($new_node);
-                    } else {
-                        $this->insert($start_node->getRight()->getLeft(), $new_node);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Симметричный обход дерева
-     * @return string
-     */
-    public function SymmetricOrder() : string {
-        $output = "";
+    private function insert(MyBinaryTreeNode $parent_node, MyBinaryTreeNode $new_node, $direction) {
         $stack = new MyStack();
         $node = $this->root;
         while ($node !== null) {
@@ -71,43 +40,72 @@ class MyBinaryTree
                 $stack->push($node);
                 $node = $node->getLeft();
             } else {
-                $output .= $node->getData()." ";
+                if ($node->getData() == $parent_node->getData()) {
+                    if ($direction === self::LEFT) {
+                        $parent_node->setLeft($new_node);
+                    } else {
+                        $parent_node->setRight($new_node);
+                    }
+                    $new_node->setParent($parent_node);
+                }
                 if ($stack->isEmpty() === false) {
                     $node = $stack->pop();
-                    $output .= $node->getData()." ";
+                    if ($node->getData() == $parent_node->getData()) {
+                        if ($direction === self::LEFT) {
+                            $parent_node->setLeft($new_node);
+                        } else {
+                            $parent_node->setRight($new_node);
+                        }
+                        $new_node->setParent($parent_node);
+                    }
                     $node = $node->getRight();
                 } else {
                     $node = $node->getRight();
                 }
             }
         }
-        return $output;
     }
 
 
-    /**
-     * Строковое отображение дерева
-     * @return string
-     */
-    public function __toString():string {
-        return $this->look($this->root, 0);
+    public static function restoreTree(array $preorder, array $inorder) : self {
+        $tree = new self();
+        $root = $tree->add($preorder[0]);
+
+        $tree->splitInorder($root, $preorder, $inorder);
+
+        return $tree;
+
     }
 
-    /**
-     * Рекурсивная функция для печати дерева
-     * @param MyBinaryTreeNode $node
-     * @param int $level
-     * @return string
-     */
-    private function look(MyBinaryTreeNode $node, int $level) {
-        $output = "level ".$level.": ".$node->getData()." [parent = ".($node->getParent() !== null ? $node->getParent()->getData() : "")."]".PHP_EOL;
-        $level++;
-        if ($node->getLeft() !== null) {
-            $output .= "left ".$this->look($node->getLeft(), $level);
+    private function splitInorder(MyBinaryTreeNode $root, array $preorder, array $inorder) {
+        $root_idx = array_search($root->getData(), $inorder);
+        $left_sub_tree = array_slice($inorder, 0, $root_idx);
+        $right_sub_tree = array_slice($inorder, $root_idx+1, count($inorder)-$root_idx);
+
+        if (count($left_sub_tree) === 1) {
+            $this->add($left_sub_tree[0], $root, self::LEFT);
+        } else {
+            for ($i=$root_idx+1; $i < count($preorder); $i++) {
+                if (in_array($preorder[$i], $left_sub_tree)) {
+                    $new_root = $this->add($preorder[$i], $root, self::LEFT);
+                    $this->splitInorder($new_root, $preorder, $left_sub_tree);
+                    break;
+                }
+            }
         }
-        if ($node->getRight() !== null) {
-            $output .= "right ".$this->look($node->getRight(), $level);
+
+        if (count($right_sub_tree) === 1) {
+            $this->add($right_sub_tree[0], $root, self::RIGHT);
+        } else {
+            for ($i=$root_idx+1; $i < count($preorder); $i++) {
+                if (in_array($preorder[$i], $right_sub_tree)) {
+                    $new_root = $this->add($preorder[$i], $root, self::RIGHT);
+                    $this->splitInorder($new_root, $preorder, $right_sub_tree);
+                    break;
+                }
+            }
         }
-        return $output;
     }
+
+
 }
